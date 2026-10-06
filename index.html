@@ -2,295 +2,97 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#000000">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<meta name="theme-color" content="#05070a">
+<meta name="description" content="Kalimat — مساحة عربية للفيديو والصورة والكلمة.">
+<link rel="manifest" href="./manifest.json">
+<link rel="stylesheet" href="./css/kalimat.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <title>kalimat</title>
-<meta name="description" content="kalimat — منصة لامركزية للكلمة والصورة والفيديو، بلا حسابات مركزية ولا إعلانات.">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:#000;color:#fff;font-family:Tajawal,system-ui,sans-serif}
-#feed{height:100dvh;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none}
-#feed::-webkit-scrollbar{display:none}
-.card{height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;position:relative;background:#000}
-.card video{width:100%;height:100%;object-fit:contain}
-.info{position:absolute;inset-inline:14px 84px;bottom:calc(76px + env(safe-area-inset-bottom,0px));text-shadow:0 1px 6px #000}
-.info b{font-size:17px;display:block;margin-bottom:4px}
-.info p{font-size:15px;line-height:1.5;max-height:4.5em;overflow:hidden}
-.side{position:absolute;inset-inline-end:10px;bottom:calc(90px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:18px}
-.av{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#0f2a3a;border:2px solid #38bdf8}
-.ib{background:none;border:0;color:#fff;font:inherit;font-size:30px;line-height:1;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;text-shadow:0 1px 6px #000}
-.ib small{font-size:12px}
-.ib.on{color:#38bdf8;text-shadow:0 0 10px #0ea5e9}
-nav{position:fixed;inset-inline:0;bottom:0;height:calc(58px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);display:flex;align-items:center;justify-content:space-around;background:#000;border-top:1px solid #0c3a54;z-index:5}
-nav button{background:none;border:0;color:#bfe9ff;font:inherit;font-size:14px;opacity:.85;min-width:70px;padding:8px}
-nav .plus{position:relative;isolation:isolate;overflow:hidden;width:58px;height:40px;min-width:0;padding:0;background:linear-gradient(135deg,#0369a1,#0ea5e9 50%,#7dd3fc);color:#fff;border-radius:22px 22px 22px 22px/20px 20px 20px 20px;font-size:26px;font-weight:700;opacity:1;box-shadow:0 0 16px #38bdf88c}
-nav .plus::before{content:"";position:absolute;z-index:-1;left:0;bottom:0;width:200%;height:65%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 58 20' preserveAspectRatio='none'%3E%3Cpath d='M0 10Q14.5 0 29 10T58 10V20H0Z' fill='%23fff' fill-opacity='.38'/%3E%3C/svg%3E") repeat-x;background-size:58px 100%;animation:wv 2.6s linear infinite}
-@keyframes wv{to{transform:translateX(-58px)}}
-@media(prefers-reduced-motion:reduce){nav .plus::before{animation:none}}
-#empty{height:100dvh;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;color:#8fcbea;line-height:1.8}
-#hint{position:fixed;top:calc(58px + env(safe-area-inset-top,0px));inset-inline:0;text-align:center;font-size:13px;color:#ddd;z-index:4;pointer-events:none}
-dialog{margin:auto;width:min(92vw,420px);background:#161616;color:#fff;border:1px solid #0c3a54;border-radius:14px;padding:18px}
-dialog::backdrop{background:#000a}
-dialog h2{font-size:19px;margin-bottom:12px}
-dialog input,dialog textarea{width:100%;background:#000;color:#fff;border:1px solid #1b4a66;border-radius:8px;padding:10px;font:inherit;margin:6px 0}
-dialog .b{width:100%;padding:11px;margin:5px 0;border:0;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#04202e;font:inherit;font-weight:700}
-dialog .b.g{background:#0f2a3a;color:#bfe9ff}
-dialog .w{font-size:13px;color:#e8b04a;line-height:1.6;margin:8px 0}
-#st,#out{font-size:13px;color:#aaa;word-break:break-all;margin-top:6px}
-:focus-visible{outline:2px solid #7dd3fc;outline-offset:2px}
-#top{position:fixed;top:0;inset-inline:0;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 14px;display:flex;justify-content:space-between;align-items:center;z-index:4;background:linear-gradient(#000c,#0000);pointer-events:none}
-#top>*{pointer-events:auto}
-#brand{font-size:21px;letter-spacing:.5px;background:linear-gradient(90deg,#38bdf8,#bae6fd);-webkit-background-clip:text;background-clip:text;color:transparent;direction:ltr}
-#tabs{display:flex;gap:18px}
-.t{background:none;border:0;color:#9ccfe8;font:inherit;font-size:16px;padding:4px 2px;border-bottom:2px solid transparent}
-.t.on{color:#fff;border-color:#38bdf8}
-.mi{width:100%;height:100%;object-fit:contain}
-.tx{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:100px 30px 170px;text-align:center;font-size:24px;line-height:1.8;overflow:auto;background:radial-gradient(circle at 25% 15%,#0b4a6e,#04131c);word-break:break-word}
-.avw{position:relative}
-.fb{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);width:22px;height:22px;padding:0;border:0;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#7dd3fc);color:#04202e;font-weight:700;font-size:16px;line-height:22px}
-#cl{max-height:40vh;overflow:auto}
-.cm{background:#0f2a3a;padding:8px 10px;border-radius:8px;margin:5px 0;font-size:14px;line-height:1.6;word-break:break-word}
-</style>
 </head>
 <body>
-<div id="hint">اضغط على الفيديو لتشغيل أو كتم الصوت</div>
-<div id="top"><b id="brand">kalimat</b><div id="tabs"><button class="t on" data-t="all">لك</button><button class="t" data-t="fol">المتابعون</button></div><span style="width:70px"></span></div>
-<div id="feed"><div id="empty">kalimat — جارٍ جلب المنشورات من المرحّلات…<br>إن لم يظهر شيء، سجّل الدخول وانشر أول منشور.</div></div>
-<nav>
-<button id="nHome">الرئيسية</button>
-<button class="plus" id="nPost" aria-label="نشر فيديو">+</button>
-<button id="nMe">حسابي</button>
-</nav>
+<div id="app">
+  <header class="topbar">
+    <button class="icon-btn" id="searchBtn" aria-label="بحث">⌕</button>
+    <div class="brand">kalimat<span>.</span></div>
+    <button class="profile-mini" id="profileBtn" aria-label="حسابي"><span>ك</span></button>
+  </header>
 
-<dialog id="dLogin"><h2>حسابي</h2><div id="loginBody"></div><button class="b g" id="xLogin">إغلاق</button></dialog>
+  <main class="feed" id="feed" aria-label="المحتوى">
+    <section class="post active" data-type="video">
+      <div class="media">
+        <video src="" poster="" muted loop playsinline preload="metadata"></video>
+        <div class="demo-visual"><div class="demo-word">كلمات</div><div class="demo-line">الفكرة تبدأ بكلمة.</div></div>
+      </div>
+      <div class="shade"></div>
+      <div class="post-info">
+        <button class="author">@kalimat</button>
+        <h1>مساحة للكلمة، للفكرة، وللصورة التي تستحق أن تُرى.</h1>
+        <p>#كلمات #أفكار #إبداع</p>
+      </div>
+      <aside class="actions">
+        <button class="action like"><b>♡</b><span>12.4K</span></button>
+        <button class="action comments"><b>◌</b><span>328</span></button>
+        <button class="action"><b>↗</b><span>مشاركة</span></button>
+        <button class="action save"><b>⌑</b><span>حفظ</span></button>
+      </aside>
+    </section>
 
-<dialog id="dPost"><h2>نشر على kalimat</h2>
-<input type="file" id="f" accept="image/*,video/*">
-<input id="u" placeholder="أو الصق رابط صورة أو فيديو (https://…)" dir="ltr">
-<textarea id="c" rows="3" placeholder="اكتب نصاً أو وصفاً… ويمكنك إضافة #وسوم"></textarea>
-<button class="b" id="go">نشر</button><button class="b g" id="xPost">إلغاء</button>
-<div id="st"></div></dialog>
+    <section class="post" data-type="image">
+      <div class="media image-demo"><div class="quote">«بعض الكلمات<br>تصل قبل أصحابها.»</div></div>
+      <div class="shade"></div>
+      <div class="post-info">
+        <button class="author">@نور</button>
+        <h1>ليست كل الأشياء الجميلة بحاجة إلى شرح.</h1>
+        <p>#خواطر #كلمات</p>
+      </div>
+      <aside class="actions">
+        <button class="action like"><b>♡</b><span>8.7K</span></button>
+        <button class="action comments"><b>◌</b><span>154</span></button>
+        <button class="action"><b>↗</b><span>مشاركة</span></button>
+        <button class="action save"><b>⌑</b><span>حفظ</span></button>
+      </aside>
+    </section>
 
-<dialog id="dCom"><h2>التعليقات</h2><div id="cl"></div><input id="ci" placeholder="اكتب تعليقاً"><button class="b" id="cs">إرسال</button><button class="b g" id="xCom">إغلاق</button></dialog>
+    <section class="post" data-type="text">
+      <div class="media text-demo"><div><small>ومضة</small><strong>حين تعجز عن قول ما في داخلك، اكتب.</strong><em>kalimat</em></div></div>
+      <div class="shade"></div>
+      <div class="post-info">
+        <button class="author">@كاتب</button>
+        <h1>هنا لا تحتاج إلى الصراخ كي تصل فكرتك.</h1>
+        <p>#كتابة #معرفة #مجتمع</p>
+      </div>
+      <aside class="actions">
+        <button class="action like"><b>♡</b><span>5.1K</span></button>
+        <button class="action comments"><b>◌</b><span>92</span></button>
+        <button class="action"><b>↗</b><span>مشاركة</span></button>
+        <button class="action save"><b>⌑</b><span>حفظ</span></button>
+      </aside>
+    </section>
+  </main>
 
-<script src="https://cdn.jsdelivr.net/npm/nostr-tools@2.7.2/lib/nostr.bundle.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
-<script>
-const NT=window.NostrTools;
-const RELAYS=["wss://relay.damus.io","wss://nos.lol","wss://relay.primal.net"];
-const BLOSSOM="https://blossom.primal.net";
-const $=s=>document.querySelector(s);
-const el=(t,p={},...k)=>{const e=document.createElement(t);Object.assign(e,p);k.forEach(x=>e.append(x));return e};
-const now=()=>Math.floor(Date.now()/1000);
-const hex=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join("");
-let sk=null,pk=null,muted=true,follows=new Set(),cLoaded=false,c3="",c3t=0,tab="all";
-const seen=new Set(),subs={},handlers={},socks=[];
+  <nav class="bottom-nav">
+    <button class="nav active"><i>⌂</i><span>الرئيسية</span></button>
+    <button class="nav"><i>⌕</i><span>استكشاف</span></button>
+    <button class="publish" id="publishBtn"><i>＋</i></button>
+    <button class="nav"><i>♧</i><span>الإشعارات</span></button>
+    <button class="nav" id="meNav"><i>◯</i><span>حسابي</span></button>
+  </nav>
 
-/* ---------- relays ---------- */
-function open1(u){
-  const w=new WebSocket(u);
-  w.onopen=()=>Object.values(subs).forEach(s=>w.send(s));
-  w.onmessage=e=>{try{const m=JSON.parse(e.data);if(m[0]=="EVENT"&&handlers[m[1]])handlers[m[1]](m[2])}catch{}};
-  w.onclose=()=>{const i=socks.indexOf(w);if(i>-1)socks.splice(i,1);setTimeout(()=>open1(u),6000)};
-  socks.push(w);
-}
-function sub(id,filters,cb){
-  subs[id]=JSON.stringify(["REQ",id,...filters]);handlers[id]=cb;
-  socks.forEach(w=>w.readyState==1&&w.send(subs[id]));
-}
-function publish(ev){const m=JSON.stringify(["EVENT",ev]);socks.forEach(w=>w.readyState==1&&w.send(m))}
+  <div class="tabs"><button class="tab active">لك</button><button class="tab">المتابعون</button></div>
 
-/* ---------- identity ---------- */
-async function sign(t){
-  if(sk)return NT.finalizeEvent(t,sk);
-  if(window.nostr)return window.nostr.signEvent(t);
-  throw new Error("no key");
-}
-function setKey(s){
-  sk=s;pk=NT.getPublicKey(s);
-  try{localStorage.setItem("nsec",NT.nip19.nsecEncode(s))}catch{}
-  ui();
-}
-function logout(){sk=null;pk=null;try{localStorage.removeItem("nsec")}catch{}ui();renderLogin()}
-function ui(){$("#nMe").textContent=pk?"حسابي ✓":"دخول";if(pk)loadContacts();else{follows=new Set();applyTab()}}
-function loadContacts(){
-  cLoaded=false;
-  sub("c3",[{kinds:[3],authors:[pk],limit:1}],e=>{if(e.created_at<c3t)return;c3t=e.created_at;c3=e.content;follows=new Set(e.tags.filter(t=>t[0]=="p").map(t=>t[1]));cLoaded=true;applyTab()});
-  setTimeout(()=>{cLoaded=true},5000);
-}
-function ok(){if(pk)return true;renderLogin();$("#dLogin").showModal();return false}
-
-function renderLogin(){
-  const b=$("#loginBody");b.replaceChildren();
-  if(pk){
-    b.append(el("p",{textContent:"مسجّل الدخول: "+NT.nip19.npubEncode(pk).slice(0,20)+"…"}),
-      el("button",{className:"b g",textContent:"تسجيل الخروج",onclick:logout}));
-    return;
-  }
-  const out=el("div",{id:"out"});
-  const inp=el("input",{placeholder:"nsec1… (المفتاح الخاص)",dir:"ltr",type:"password"});
-  b.append(
-    el("button",{className:"b",textContent:"الدخول عبر محفظة نوستر",onclick:async()=>{
-      if(!window.nostr){out.textContent="لا توجد محفظة في هذا المتصفح. استخدم المفتاح أدناه.";return}
-      try{pk=await window.nostr.getPublicKey();sk=null;ui();renderLogin()}catch{out.textContent="تم الرفض"}
-    }}),
-    el("button",{className:"b g",textContent:"إنشاء مفتاح جديد",onclick:()=>{
-      const s=NT.generateSecretKey();setKey(s);
-      renderLogin();
-      $("#loginBody").prepend(el("p",{className:"w",textContent:"احفظ مفتاحك الخاص الآن في مكان آمن، فلا يمكن استرجاعه: "+NT.nip19.nsecEncode(s)}));
-    }}),
-    inp,
-    el("button",{className:"b g",textContent:"الدخول بالمفتاح الخاص",onclick:()=>{
-      try{const d=NT.nip19.decode(inp.value.trim());if(d.type!="nsec")throw 0;setKey(d.data);renderLogin()}
-      catch{out.textContent="مفتاح غير صالح"}
-    }}),
-    el("p",{className:"w",textContent:"تنبيه: لا تُدخل مفتاحك الخاص إلا في نسختك أنت من الموقع. يُحفظ على جهازك فقط ولا يُرسل لأي خادم."}),
-    out);
-}
-
-/* ---------- feed ---------- */
-const obs=new IntersectionObserver(es=>es.forEach(e=>{
-  const v=e.target.querySelector("video");if(!v)return;
-  if(e.isIntersecting){load(v);v.muted=muted;v.play().catch(()=>{})}else v.pause();
-}),{threshold:.65});
-
-function load(v){
-  if(v.dataset.l)return;v.dataset.l=1;const u=v.dataset.src;
-  if(/\.m3u8/i.test(u)&&window.Hls&&Hls.isSupported()){const h=new Hls();h.loadSource(u);h.attachMedia(v)}
-  else v.src=u;
-}
-function media(ev){
-  for(const t of ev.tags){
-    if(t[0]=="imeta"){
-      const u=(t.find(x=>x.startsWith("url "))||"").slice(4),m=(t.find(x=>x.startsWith("m "))||"").slice(2);
-      if(u)return [u,ev.kind==20||/^image/.test(m)?"i":"v"];
-    }
-    if(t[0]=="url")return [t[1],ev.kind==20?"i":"v"];
-  }
-  let m=ev.content.match(/https?:\/\/\S+\.(mp4|webm|mov|m3u8)\S*/i);if(m)return [m[0],"v"];
-  m=ev.content.match(/https?:\/\/\S+\.(jpe?g|png|gif|webp)\S*/i);if(m)return [m[0],"i"];
-  return [null,"t"];
-}
-function addCard(ev){
-  if(seen.has(ev.id))return;
-  if(ev.kind==1&&(ev.tags.some(t=>t[0]=="e")||!ev.content.trim()))return;
-  const [u,ty]=media(ev);
-  if(u&&!/^https:/.test(u))return;
-  const T=u?ty:"t";
-  seen.add(ev.id);
-  const cap=ev.content.replace(/https?:\/\/\S+/g,"").trim();
-  let m;
-  if(T=="v"){
-    m=el("video",{loop:true,playsInline:true,muted:true,preload:"metadata"});m.dataset.src=u;
-    m.onclick=()=>{muted=!muted;$("#hint")&&$("#hint").remove();document.querySelectorAll("video").forEach(x=>x.muted=muted)};
-  }else if(T=="i")m=el("img",{src:u,loading:"lazy",alt:"",className:"mi"});
-  else m=el("div",{className:"tx",textContent:cap});
-  const like=el("button",{className:"ib",ariaLabel:"إعجاب"},"♥",el("small",{textContent:"أعجبني"}));
-  like.onclick=()=>{
-    if(!ok())return;
-    sign({kind:7,created_at:now(),content:"+",tags:[["e",ev.id],["p",ev.pubkey]]}).then(publish).catch(()=>{});
-    like.classList.add("on");
-  };
-  const com=el("button",{className:"ib",ariaLabel:"تعليقات",onclick:()=>openCom(ev)},"✎",el("small",{textContent:"تعليق"}));
-  const share=el("button",{className:"ib",ariaLabel:"مشاركة"},"↗",el("small",{textContent:"مشاركة"}));
-  share.onclick=()=>{
-    const link="https://njump.me/"+NT.nip19.neventEncode({id:ev.id,author:ev.pubkey});
-    navigator.share?navigator.share({url:link}).catch(()=>{}):navigator.clipboard.writeText(link);
-  };
-  const fb=el("button",{className:"fb",textContent:"+",ariaLabel:"متابعة"});
-  fb.onclick=()=>follow(ev.pubkey,fb);
-  const card=el("section",{className:"card"},m,
-    el("div",{className:"side"},el("div",{className:"avw"},el("img",{className:"av",alt:""}),fb),like,com,share),
-    el("div",{className:"info"},el("b",{className:"nm",textContent:"@"+NT.nip19.npubEncode(ev.pubkey).slice(5,13)}),el("p",{textContent:T=="t"?"":(cap||ev.tags.find(t=>t[0]=="title")?.[1]||"")})));
-  card.dataset.pk=ev.pubkey;card.dataset.t=ev.created_at;
-  const f=$("#feed");$("#empty")&&$("#empty").remove();
-  const next=[...f.children].find(c=>+c.dataset.t<ev.created_at);
-  f.insertBefore(card,next||null);obs.observe(card);wantProfile(ev.pubkey);applyTab();
-}
-async function follow(p,b){
-  if(!ok())return;
-  if(!cLoaded){b.textContent="…";return}
-  follows.add(p);
-  try{const ev=await sign({kind:3,created_at:now(),content:c3,tags:[...follows].map(x=>["p",x])});publish(ev);c3t=ev.created_at}catch{follows.delete(p)}
-  applyTab();
-}
-function applyTab(){
-  document.querySelectorAll(".card").forEach(c=>{
-    const f=follows.has(c.dataset.pk);
-    c.style.display=tab=="fol"&&!f?"none":"";
-    const b=c.querySelector(".fb");if(b)b.style.display=f||c.dataset.pk==pk?"none":"";
-  });
-}
-function openCom(ev){
-  const L=$("#cl");L.replaceChildren();$("#dCom").showModal();
-  const got=new Set(),add=t=>L.append(el("p",{className:"cm",textContent:t}));
-  sub("cm",[{kinds:[1],"#e":[ev.id],limit:50}],e=>{if(!got.has(e.id)){got.add(e.id);add(e.content)}});
-  $("#cs").onclick=async()=>{
-    if(!ok())return;const c=$("#ci").value.trim();if(!c)return;
-    try{const r=await sign({kind:1,created_at:now(),content:c,tags:[["e",ev.id,"","root"],["p",ev.pubkey]]});publish(r);got.add(r.id);add(c);$("#ci").value=""}catch{}
-  };
-}
-
-const need=new Set(),known=new Set();let pt;
-function wantProfile(p){
-  if(known.has(p))return;known.add(p);need.add(p);clearTimeout(pt);
-  pt=setTimeout(()=>{
-    sub("p"+Date.now(),[{kinds:[0],authors:[...need]}],e=>{
-      try{
-        const d=JSON.parse(e.content);
-        document.querySelectorAll(`[data-pk="${e.pubkey}"]`).forEach(c=>{
-          const n=d.display_name||d.name;if(n)c.querySelector(".nm").textContent="@"+n;
-          if(d.picture&&/^https:/.test(d.picture))c.querySelector(".av").src=d.picture;
-        });
-      }catch{}
-    });
-    need.clear();
-  },400);
-}
-
-/* ---------- publish ---------- */
-async function upload(file){
-  const h=hex(new Uint8Array(await crypto.subtle.digest("SHA-256",await file.arrayBuffer())));
-  const a=await sign({kind:24242,created_at:now(),content:"Upload video",tags:[["t","upload"],["x",h],["expiration",String(now()+600)]]});
-  const r=await fetch(BLOSSOM+"/upload",{method:"PUT",headers:{Authorization:"Nostr "+btoa(JSON.stringify(a)),"Content-Type":file.type||"video/mp4"},body:file});
-  if(!r.ok)throw new Error("upload");
-  return (await r.json()).url;
-}
-const mime=u=>{const e=(u.split("?")[0].match(/\.(\w+)$/)||[])[1]||"";
-  return /^(jpe?g|png|gif|webp)$/i.test(e)?"image/"+(e.toLowerCase()=="jpg"?"jpeg":e.toLowerCase()):/webm/i.test(e)?"video/webm":/m3u8/i.test(e)?"application/x-mpegURL":"video/mp4"};
-$("#go").onclick=async()=>{
-  const st=$("#st");
-  try{
-    let u=$("#u").value.trim();const f=$("#f").files[0],c=$("#c").value.trim();
-    if(f){st.textContent="جارٍ الرفع…";u=await upload(f)}
-    if(!u&&!c){st.textContent="اكتب نصاً أو أرفق صورة أو فيديو";return}
-    if(u&&!/^https:\/\//.test(u)){st.textContent="الرابط يجب أن يبدأ بـ https";return}
-    const tags=(c.match(/#[\p{L}\p{N}_]+/gu)||[]).map(x=>["t",x.slice(1).toLowerCase()]);
-    let t={kind:1,created_at:now(),content:c,tags};
-    if(u){const m=f?(f.type||"video/mp4"):mime(u);t={kind:/^image/.test(m)?20:22,created_at:now(),content:c,tags:[["title",c.slice(0,60)],["imeta","url "+u,"m "+m],["alt",c||"media"],...tags]}}
-    const ev=await sign(t);publish(ev);addCard(ev);
-    st.textContent="تم النشر";$("#dPost").close();$("#f").value="";$("#u").value="";$("#c").value="";
-  }catch(e){st.textContent="تعذّر النشر. تأكد من تسجيل الدخول ومن حجم الملف."}
-};
-
-/* ---------- wiring ---------- */
-$("#nHome").onclick=()=>$("#feed").scrollTo({top:0,behavior:"smooth"});
-$("#nPost").onclick=()=>{if(ok()){$("#st").textContent="";$("#dPost").showModal()}};
-$("#nMe").onclick=()=>{renderLogin();$("#dLogin").showModal()};
-$("#xLogin").onclick=()=>$("#dLogin").close();
-$("#xPost").onclick=()=>$("#dPost").close();
-
-$("#xCom").onclick=()=>$("#dCom").close();
-document.querySelectorAll(".t").forEach(b=>b.onclick=()=>{
-  if(b.dataset.t=="fol"&&!ok())return;
-  tab=b.dataset.t;document.querySelectorAll(".t").forEach(x=>x.classList.toggle("on",x==b));
-  applyTab();$("#feed").scrollTo({top:0});
-});
-RELAYS.forEach(open1);
-sub("feed",[{kinds:[1,20,21,22],limit:80}],addCard);
-try{const s=localStorage.getItem("nsec");if(s){const d=NT.nip19.decode(s);if(d.type=="nsec")setKey(d.data)}}catch{}
-ui();
-</script>
+  <dialog id="publishDialog">
+    <form method="dialog" class="sheet">
+      <button class="close">×</button>
+      <h2>أنشئ كلمة جديدة</h2>
+      <textarea placeholder="ما الذي تريد قوله؟"></textarea>
+      <div class="upload-row"><button type="button">＋ صورة أو فيديو</button><button type="button"># وسم</button></div>
+      <button class="primary">نشر</button>
+    </form>
+  </dialog>
+</div>
+<script src="./js/app.js" type="module"></script>
 </body>
 </html>
