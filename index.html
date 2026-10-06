@@ -1,15 +1,142 @@
-<!doctype html><html lang="ar" dir="rtl"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#050812"><meta name="description" content="kalimat — مساحة للكلمة، للفكرة، وللصورة التي تستحق أن تُرى.">
-<link rel="manifest" href="./manifest.json"><link rel="stylesheet" href="./kalimat.css">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="icon" href="./icon-192.png"><link rel="apple-touch-icon" href="./icon-192.png"><title>kalimat</title></head><body>
-<div id="app">
-<header class="topbar"><button class="circle" id="searchBtn">⌕</button><button class="brand" id="homeBtn"><img src="./icon-192.png"><span>kalimat</span></button><button class="circle" id="profileBtn">ك</button></header>
-<div class="tabs"><button class="tab active">لك</button><button class="tab">المتابعون</button></div>
-<main id="feed" class="feed"></main>
-<nav class="bottom"><button data-page="home" class="nav active"><b>⌂</b><small>الرئيسية</small></button><button data-page="explore" class="nav"><b>⌕</b><small>استكشاف</small></button><button id="publishBtn" class="publish">＋</button><button data-page="notify" class="nav"><b>♧</b><small>الإشعارات</small></button><button data-page="profile" class="nav"><b>◯</b><small>حسابي</small></button></nav>
-<section id="panel" class="panel" hidden><div class="panelHead"><h2 id="panelTitle"></h2><button id="panelClose">×</button></div><div id="panelBody"></div></section>
-<dialog id="composer"><form method="dialog" id="composerForm"><button type="button" id="closeComposer" class="close">×</button><span class="eyebrow">KALIMAT</span><h2>أنشئ كلمة جديدة</h2><textarea id="postText" maxlength="500" placeholder="ما الذي تريد قوله؟"></textarea><div class="count"><span id="count">0</span>/500</div><div class="tools"><button type="button" id="mediaBtn">＋ صورة أو فيديو</button><button type="button" id="tagBtn"># وسم</button></div><input id="mediaInput" type="file" accept="image/*,video/*" hidden><div id="preview"></div><button class="send">نشر ➤</button></form></dialog><div id="toast"></div></div>
-<script type="module" src="./app.js"></script><script>navigator.serviceWorker?.register('./sw.js').catch(()=>{});</script></body></html>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<meta name="theme-color" content="#050b16">
+<meta name="description" content="Kalimat — مساحة عالمية للكلمة والفكرة والصورة.">
+<title>Kalimat | كلمات</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="./kalimat.css">
+</head>
+<body>
+<div id="boot" class="boot"><img src="./icon-192.png" alt="Kalimat"><strong>kalimat</strong><span>مساحة للكلمة والفكرة والصورة</span></div>
+
+<section id="auth" class="auth hidden">
+  <div class="auth-card">
+    <img class="auth-logo" src="./icon-192.png" alt="Kalimat">
+    <h1>kalimat</h1>
+    <p>مساحة عالمية للكلمة والفكرة والصورة</p>
+    <div class="auth-tabs"><button data-auth-mode="login" class="active">تسجيل الدخول</button><button data-auth-mode="register">إنشاء حساب</button></div>
+    <form id="auth-form">
+      <input id="auth-name" class="field hidden" autocomplete="name" placeholder="الاسم الظاهر">
+      <input id="auth-email" class="field" type="email" autocomplete="email" required placeholder="البريد الإلكتروني">
+      <input id="auth-password" class="field" type="password" autocomplete="current-password" minlength="8" required placeholder="كلمة المرور (8 أحرف على الأقل)">
+      <button class="primary wide" type="submit" id="auth-submit">دخول</button>
+    </form>
+    <button id="forgot-password" class="text-btn">نسيت كلمة المرور؟</button>
+    <div id="auth-note" class="auth-note"></div>
+  </div>
+</section>
+
+<main id="app" class="hidden">
+  <header class="topbar">
+    <button class="avatar-button" id="header-profile"><img id="header-avatar" src="./icon-192.png" alt=""></button>
+    <div class="brand"><span>kalimat</span><img src="./icon-192.png" alt="كلمات"></div>
+    <button class="round-btn" id="search-open" aria-label="بحث"><i class="fa-solid fa-magnifying-glass"></i></button>
+  </header>
+
+  <div class="feed-tabs">
+    <button class="feed-tab active" data-feed="for-you">لك</button>
+    <button class="feed-tab" data-feed="following">المتابعون</button>
+    <button class="feed-tab" data-feed="discover">المجتمع</button>
+  </div>
+
+  <section id="feed" class="feed" aria-live="polite"></section>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-page="home"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+    <button class="nav-btn" data-page="notifications"><i class="fa-regular fa-bell"></i><b id="notif-dot"></b><span>الإشعارات</span></button>
+    <button class="publish-btn" id="publish-open" aria-label="نشر"><i class="fa-solid fa-plus"></i></button>
+    <button class="nav-btn" data-page="explore"><i class="fa-solid fa-magnifying-glass"></i><span>استكشاف</span></button>
+    <button class="nav-btn" data-page="profile"><i class="fa-regular fa-circle-user"></i><span>حسابي</span></button>
+  </nav>
+
+  <section id="page-explore" class="page hidden">
+    <div class="page-head"><h2>استكشاف</h2><button class="round-btn" id="explore-search"><i class="fa-solid fa-magnifying-glass"></i></button></div>
+    <div class="card"><input id="user-search" class="field" placeholder="ابحث عن شخص، كلمة أو موضوع..."></div>
+    <div id="search-results" class="results"></div>
+  </section>
+
+  <section id="page-notifications" class="page hidden">
+    <div class="page-head"><h2>الإشعارات</h2><button class="text-btn" id="notifications-read">قراءة الكل</button></div>
+    <div id="notifications-list" class="stack"></div>
+  </section>
+
+  <section id="page-profile" class="page hidden">
+    <div id="profile-view" class="profile-card"></div>
+  </section>
+</main>
+
+<dialog id="publish-dialog">
+  <div class="sheet">
+    <button class="close-btn" data-close="publish-dialog">×</button>
+    <h2>أنشئ كلمة جديدة</h2>
+    <textarea id="post-text" maxlength="4000" placeholder="اكتب فكرتك، قصتك، رأيك أو كلمة تستحق أن تُرى..."></textarea>
+    <div class="upload-row">
+      <button class="secondary-btn" id="media-pick"><i class="fa-regular fa-image"></i> صورة أو فيديو</button>
+      <button class="secondary-btn" id="tag-add"><i class="fa-solid fa-hashtag"></i> وسم</button>
+      <input id="media-file" type="file" accept="image/*,video/*" hidden>
+    </div>
+    <div id="media-preview" class="media-preview hidden"></div>
+    <button class="primary wide" id="publish-post"><i class="fa-solid fa-paper-plane"></i> نشر</button>
+  </div>
+</dialog>
+
+<dialog id="comments-dialog">
+  <div class="sheet">
+    <button class="close-btn" data-close="comments-dialog">×</button>
+    <h2>التعليقات</h2>
+    <div id="comments-list" class="comments-list"></div>
+    <form id="comment-form" class="comment-form"><input id="comment-text" class="field" maxlength="1000" placeholder="اكتب تعليقًا..."><button class="primary">إرسال</button></form>
+  </div>
+</dialog>
+
+<dialog id="profile-dialog">
+  <div class="sheet"><button class="close-btn" data-close="profile-dialog">×</button><div id="user-profile"></div></div>
+</dialog>
+
+<dialog id="settings-dialog">
+  <div class="sheet">
+    <button class="close-btn" data-close="settings-dialog">×</button>
+    <h2>الإعدادات</h2>
+    <div class="settings-list">
+      <button class="setting" id="edit-profile"><i class="fa-regular fa-id-card"></i><span><b>الهوية والملف الشخصي</b><small>الاسم، الصورة، النبذة</small></span><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="setting" id="theme-toggle"><i class="fa-solid fa-circle-half-stroke"></i><span><b>المظهر</b><small id="theme-label">داكن</small></span><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="setting" id="privacy-open"><i class="fa-solid fa-shield-halved"></i><span><b>الخصوصية والأمان</b><small>طلبات المتابعة، الحظر، الرسائل</small></span><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="setting" id="blocked-open"><i class="fa-solid fa-user-slash"></i><span><b>المحظورون</b><small>رفع الحظر وإدارته</small></span><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="setting" id="requests-open"><i class="fa-solid fa-user-plus"></i><span><b>طلبات المتابعة</b><small>قبول أو رفض</small></span><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="setting" id="chat-open"><i class="fa-regular fa-comments"></i><span><b>الرسائل</b><small>محادثات مباشرة وفورية</small></span><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="setting" id="logout"><i class="fa-solid fa-right-from-bracket"></i><span><b>تسجيل الخروج</b><small>إنهاء الجلسة الحالية</small></span><i class="fa-solid fa-chevron-left"></i></button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="generic-dialog"><div class="sheet"><button class="close-btn" data-close="generic-dialog">×</button><div id="generic-content"></div></div></dialog>
+
+<dialog id="chat-dialog">
+  <div class="sheet chat-sheet">
+    <button class="close-btn" data-close="chat-dialog">×</button>
+    <div class="chat-head"><div><h2>الرسائل</h2><small id="chat-with">اختر محادثة</small></div></div>
+    <div class="chat-layout">
+      <aside id="chat-users" class="chat-users"></aside>
+      <section class="chat-main">
+        <div id="chat-messages" class="chat-messages"></div>
+        <form id="chat-form" class="chat-form"><input id="chat-input" class="field" placeholder="اكتب رسالة..."><button class="primary"><i class="fa-solid fa-paper-plane"></i></button></form>
+      </section>
+    </div>
+  </div>
+</dialog>
+
+<div id="toast" class="toast hidden"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
