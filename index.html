@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<meta name="theme-color" content="#05070a">
+<meta name="description" content="Kalimat — مساحة عربية للفيديو والصورة والكلمة.">
+<link rel="manifest" href="./manifest.json">
+<link rel="stylesheet" href="./css/kalimat.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
+<title>kalimat</title>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <button class="icon-btn" id="searchBtn" aria-label="بحث">⌕</button>
+    <div class="brand"><img src="./assets/icons/icon-192.png" alt=""><span>kalimat</span></div>
+    <button class="profile-mini" id="profileBtn" aria-label="حسابي"><span>ك</span></button>
+  </header>
+
+  <main class="feed" id="feed" aria-label="المحتوى">
+    <section class="post active" data-type="video">
+      <div class="media">
+        <video src="" poster="" muted loop playsinline preload="metadata"></video>
+        <div class="demo-visual"><img class="brand-art" src="./assets/logo-kalimat.jpg" alt=""><div class="demo-word">كلمات</div><div class="demo-line">الفكرة تبدأ بكلمة.</div></div>
+      </div>
+      <div class="shade"></div>
+      <div class="post-info">
+        <button class="author">@kalimat</button>
+        <h1>مساحة للكلمة، للفكرة، وللصورة التي تستحق أن تُرى.</h1>
+        <p>#كلمات #أفكار #إبداع</p>
+      </div>
+      <aside class="actions">
+        <button class="action like"><b>♡</b><span>12.4K</span></button>
+        <button class="action comments"><b>◌</b><span>328</span></button>
+        <button class="action"><b>↗</b><span>مشاركة</span></button>
+        <button class="action save"><b>⌑</b><span>حفظ</span></button>
+      </aside>
+    </section>
+
+    <section class="post" data-type="image">
+      <div class="media image-demo"><div class="quote">«بعض الكلمات<br>تصل قبل أصحابها.»</div></div>
+      <div class="shade"></div>
+      <div class="post-info">
+        <button class="author">@نور</button>
+        <h1>ليست كل الأشياء الجميلة بحاجة إلى شرح.</h1>
+        <p>#خواطر #كلمات</p>
+      </div>
+      <aside class="actions">
+        <button class="action like"><b>♡</b><span>8.7K</span></button>
+        <button class="action comments"><b>◌</b><span>154</span></button>
+        <button class="action"><b>↗</b><span>مشاركة</span></button>
+        <button class="action save"><b>⌑</b><span>حفظ</span></button>
+      </aside>
+    </section>
+
+    <section class="post" data-type="text">
+      <div class="media text-demo"><div><small>ومضة</small><strong>حين تعجز عن قول ما في داخلك، اكتب.</strong><em>kalimat</em></div></div>
+      <div class="shade"></div>
+      <div class="post-info">
+        <button class="author">@كاتب</button>
+        <h1>هنا لا تحتاج إلى الصراخ كي تصل فكرتك.</h1>
+        <p>#كتابة #معرفة #مجتمع</p>
+      </div>
+      <aside class="actions">
+        <button class="action like"><b>♡</b><span>5.1K</span></button>
+        <button class="action comments"><b>◌</b><span>92</span></button>
+        <button class="action"><b>↗</b><span>مشاركة</span></button>
+        <button class="action save"><b>⌑</b><span>حفظ</span></button>
+      </aside>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav active"><i>⌂</i><span>الرئيسية</span></button>
+    <button class="nav"><i>⌕</i><span>استكشاف</span></button>
+    <button class="publish" id="publishBtn"><i>＋</i></button>
+    <button class="nav"><i>♧</i><span>الإشعارات</span></button>
+    <button class="nav" id="meNav"><i>◯</i><span>حسابي</span></button>
+  </nav>
+
+  <div class="tabs"><button class="tab active">لك</button><button class="tab">المتابعون</button></div>
+
+  <dialog id="publishDialog">
+    <form method="dialog" class="sheet">
+      <button class="close">×</button>
+      <h2>أنشئ كلمة جديدة</h2>
+      <textarea placeholder="ما الذي تريد قوله؟"></textarea>
+      <div class="upload-row"><button type="button">＋ صورة أو فيديو</button><button type="button"># وسم</button></div>
+      <button class="primary">نشر</button>
+    </form>
+  </dialog>
+</div>
+<script src="./js/app.js" type="module"></script>
+</body>
+</html>
