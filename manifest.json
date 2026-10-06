@@ -1,1 +1,16 @@
-{"name":"kalimat","short_name":"kalimat","lang":"ar","dir":"rtl","start_url":"./","scope":"./","display":"standalone","background_color":"#02060b","theme_color":"#050812","icons":[{"src":"./icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"./icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
+{
+  "name":"Kalimat | كلمات",
+  "short_name":"Kalimat",
+  "lang":"ar",
+  "dir":"rtl",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#02070d",
+  "theme_color":"#050b16",
+  "description":"مساحة عالمية للكلمة والفكرة والصورة.",
+  "icons":[
+    {"src":"./icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"./icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ]
+}
