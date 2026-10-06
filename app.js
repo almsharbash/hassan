@@ -1,120 +1,14 @@
-const $ = (s, root=document) => root.querySelector(s);
-const $$ = (s, root=document) => [...root.querySelectorAll(s)];
-
-const toast = (message) => {
-  let el = $('.toast');
-  if (!el) {
-    el = document.createElement('div');
-    el.className = 'toast';
-    document.body.appendChild(el);
-  }
-  el.textContent = message;
-  el.classList.add('show');
-  clearTimeout(window.__kalimatToast);
-  window.__kalimatToast = setTimeout(() => el.classList.remove('show'), 1800);
-};
-
-const publishDialog = $('#publishDialog');
-const publishBtn = $('#publishBtn');
-
-publishBtn?.addEventListener('click', () => {
-  if (typeof publishDialog?.showModal === 'function') publishDialog.showModal();
-  else publishDialog?.setAttribute('open','');
-});
-
-$$('.close').forEach(btn => btn.addEventListener('click', () => {
-  publishDialog?.close?.();
-}));
-
-$$('.like').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const liked = btn.classList.toggle('liked');
-    const icon = $('b', btn);
-    if (icon) icon.textContent = liked ? '♥' : '♡';
-    const count = $('span', btn);
-    if (count && !count.dataset.base) count.dataset.base = count.textContent;
-    toast(liked ? 'أُعجبت بالكلمة' : 'تم إلغاء الإعجاب');
-  });
-});
-
-$$('.save').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const saved = btn.classList.toggle('saved');
-    const icon = $('b', btn);
-    if (icon) icon.textContent = saved ? '◆' : '⌑';
-    toast(saved ? 'تم الحفظ' : 'أُلغي الحفظ');
-  });
-});
-
-$$('.comments').forEach(btn => {
-  btn.addEventListener('click', () => toast('التعليقات ستُفعّل مع قاعدة البيانات'));
-});
-
-$$('.action').forEach(btn => {
-  if (btn.classList.contains('like') || btn.classList.contains('save') || btn.classList.contains('comments')) return;
-  btn.addEventListener('click', async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({title:'kalimat', text:'شاهد هذه الكلمة على kalimat'});
-      } else {
-        await navigator.clipboard.writeText(location.href);
-        toast('تم نسخ رابط المنصة');
-      }
-    } catch {}
-  });
-});
-
-$$('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    $$('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    toast(tab.textContent.trim() === 'المتابعون' ? 'محتوى المتابعين قريبًا' : 'أنت في صفحة لك');
-  });
-});
-
-$$('.nav').forEach(nav => {
-  nav.addEventListener('click', () => {
-    $$('.nav').forEach(n => n.classList.remove('active'));
-    nav.classList.add('active');
-    const label = $('span', nav)?.textContent?.trim();
-    if (label && label !== 'الرئيسية') toast(`${label} ستُفعّل في المرحلة التالية`);
-  });
-});
-
-$('#searchBtn')?.addEventListener('click', () => toast('البحث سيُفعّل مع قاعدة البيانات'));
-$('#profileBtn')?.addEventListener('click', () => toast('الحسابات ستُفعّل في المرحلة التالية'));
-$('#meNav')?.addEventListener('click', () => toast('صفحة الحساب ستُفعّل مع نظام المستخدمين'));
-
-$('.primary')?.addEventListener('click', (e) => {
-  const text = $('textarea')?.value.trim();
-  if (!text) {
-    e.preventDefault();
-    toast('اكتب كلمة قبل النشر');
-    return;
-  }
-  e.preventDefault();
-  publishDialog?.close?.();
-  $('textarea').value = '';
-  toast('تم تجهيز المنشور — الربط بالخادم في الخطوة التالية');
-});
-
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    const video = $('video', entry.target);
-    if (!video) return;
-    if (entry.isIntersecting && entry.intersectionRatio > .65) {
-      video.play?.().catch(()=>{});
-    } else {
-      video.pause?.();
-    }
-  });
-}, {threshold:[.2,.65,.9]});
-
-$$('.post').forEach(post => observer.observe(post));
-
-// Keep the feed feeling like a mobile Reels/TikTok experience.
-$('#feed')?.addEventListener('scroll', () => {
-  // Intentionally light: snap is handled by CSS.
-}, {passive:true});
-
-console.log('kalimat UI v4 ready');
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const data=[['brand','@kalimat','مساحة للكلمة، للفكرة، وللصورة التي تستحق أن تُرى.','#كلمات #أفكار #إبداع','12.4K','328'],['quote','@نور','ليست كل الأشياء الجميلة بحاجة إلى شرح.','#خواطر #كلمات','8.7K','154'],['text','@كاتب','هنا لا تحتاج إلى الصراخ كي تصل فكرتك.','#كتابة #معرفة #مجتمع','5.1K','92']];
+function render(){
+ $('#feed').innerHTML=data.map((p,i)=>{let v=p[0]==='brand'?`<div class="visual"><img src="./icon-512.png"><div><div class="word">كلمات</div><div class="line">الفكرة تبدأ بكلمة.</div></div></div>`:p[0]==='quote'?`<div class="quote">«بعض الكلمات<br>تصل قبل أصحابها.»</div>`:`<div class="textVisual"><div><small>ومضة</small><strong>حين تعجز عن قول ما في داخلك، اكتب.</strong></div></div>`;return `<section class="post">${v}<div class="shade"></div><div class="info"><b>${p[1]}</b><h1>${p[2]}</h1><p>${p[3]}</p></div><aside class="actions"><button class="action like"><b>♡</b><span>${p[4]}</span></button><button class="action comment"><b>◌</b><span>${p[5]}</span></button><button class="action share"><b>↗</b><span>مشاركة</span></button><button class="action save"><b>⌑</b><span>حفظ</span></button></aside></section>`}).join('');
+ $$('.like').forEach(b=>b.onclick=()=>{b.classList.toggle('liked');b.firstElementChild.textContent=b.classList.contains('liked')?'♥':'♡'});$$('.save').forEach(b=>b.onclick=()=>toast('تم تحديث المحفوظات'));$$('.comment').forEach(b=>b.onclick=()=>toast('التعليقات ستعمل مع قاعدة البيانات'));$$('.share').forEach(b=>b.onclick=()=>navigator.clipboard?.writeText(location.href).then(()=>toast('تم نسخ رابط المنصة')).catch(()=>toast('شارك الرابط من المتصفح')))
+}
+function toast(x){const t=$('#toast');t.textContent=x;t.classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove('show'),1700)}
+function panel(title,html){$('#panelTitle').textContent=title;$('#panelBody').innerHTML=html;$('#panel').hidden=false}
+$('#panelClose').onclick=()=>$('#panel').hidden=true;$('#homeBtn').onclick=()=>{$('#panel').hidden=true;$('#feed').scrollTo({top:0,behavior:'smooth'})};
+$('#searchBtn').onclick=()=>panel('استكشاف',`<div class="search">⌕<input placeholder="ابحث عن كلمة، فكرة أو شخص..."></div><div class="grid">${['أفكار','تصوير','كتابة','فن','معرفة','طبيعة','تقنية','إبداع'].map(x=>`<button class="tile"><span>#${x}</span></button>`).join('')}</div>`);
+$('#profileBtn').onclick=()=>panel('حسابي',`<div class="profile"><div class="avatar"><img src="./icon-192.png"></div><h2>kalimat</h2><p>@kalimat</p><div class="stats"><b>0<small>منشور</small></b><b>0<small>متابع</small></b><b>0<small>متابَعون</small></b></div><button class="setting">⚙ إعدادات الهوية والمعلومات <em>›</em></button></div>`);
+$$('.nav').forEach(n=>n.onclick=()=>{ $$('.nav').forEach(x=>x.classList.remove('active'));n.classList.add('active');let p=n.dataset.page;if(p==='home'){$('#panel').hidden=true;$('#feed').scrollTo({top:0,behavior:'smooth'})}else if(p==='explore')$('#searchBtn').click();else if(p==='profile')$('#profileBtn').click();else toast('ستظهر هنا عند تفعيل الحساب')});
+$('#publishBtn').onclick=()=>$('#composer').showModal();$('#closeComposer').onclick=()=>$('#composer').close();$('#postText').oninput=e=>$('#count').textContent=e.target.value.length;$('#tagBtn').onclick=()=>{$('#postText').value+=' #كلمات';$('#postText').dispatchEvent(new Event('input'))};$('#mediaBtn').onclick=()=>$('#mediaInput').click();$('#mediaInput').onchange=e=>{let f=e.target.files?.[0];if(!f)return;let u=URL.createObjectURL(f);$('#preview').innerHTML=f.type.startsWith('video/')?`<video src="${u}" controls></video>`:`<img src="${u}">`};$('#composerForm').onsubmit=e=>{e.preventDefault();$('#composer').close();toast('تم تجهيز المنشور — سيُحفظ عبر Kalimat API عند ربط الخادم');$('#postText').value='';$('#preview').innerHTML='';$('#count').textContent='0'};
+render();
