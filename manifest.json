@@ -1,0 +1,11 @@
+{
+  "name": "kalimat",
+  "short_name": "kalimat",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#05070a",
+  "theme_color": "#05070a",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": []
+}
