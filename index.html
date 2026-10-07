@@ -58,11 +58,16 @@ dialog .w{font-size:13px;color:#e8b04a;line-height:1.6;margin:8px 0}
 .gr>*{aspect-ratio:1;width:100%;object-fit:cover;background:#0f2a3a;font-size:11px;padding:4px;overflow:hidden;word-break:break-word;display:flex;align-items:center;justify-content:center;text-align:center}
 .cm.me{background:#0c4a6e}
 #dl{max-height:45vh;overflow:auto}
+#gear{background:none;border:0;color:#bfe9ff;font-size:23px;width:70px;text-align:end;padding:0}
+dialog h3{font-size:15px;margin:14px 0 6px;color:#7dd3fc}
+dialog label{display:flex;align-items:center;margin:10px 0;font-size:14px}
+.cm{display:flex;justify-content:space-between;align-items:center;gap:8px}
+dialog{max-height:88dvh;overflow:auto}
 </style>
 </head>
 <body>
 <div id="hint">اضغط على الفيديو لتشغيل أو كتم الصوت</div>
-<div id="top"><b id="brand">kalimat</b><div id="tabs"><button class="t on" data-t="all">لك</button><button class="t" data-t="fol">المتابعون</button></div><span style="width:70px"></span></div>
+<div id="top"><b id="brand">kalimat</b><div id="tabs"><button class="t on" data-t="all">لك</button><button class="t" data-t="fol">المتابعون</button></div><button id="gear" aria-label="الإعدادات">⚙</button></div>
 <div id="tagbar" hidden></div>
 <div id="feed"><div id="empty">kalimat — جارٍ جلب المنشورات من المرحّلات…<br>إن لم يظهر شيء، سجّل الدخول وانشر أول منشور.</div></div>
 <nav>
@@ -85,20 +90,22 @@ dialog .w{font-size:13px;color:#e8b04a;line-height:1.6;margin:8px 0}
 <dialog id="dS"><h2>بحث</h2><input id="si" placeholder="#وسم أو npub…"><button class="b" id="sg">بحث</button><button class="b g" id="xS">إغلاق</button></dialog>
 <dialog id="dP"><div id="pb"></div><button class="b g" id="xP">إغلاق</button></dialog>
 <dialog id="dD"><h2 id="dh">الرسائل الخاصة</h2><div id="dl"></div><input id="di" placeholder="اكتب رسالة" hidden><button class="b" id="ds" hidden>إرسال</button><button class="b g" id="xD">إغلاق</button></dialog>
+<dialog id="dSet"><h2>الإعدادات</h2><div id="sb"></div><button class="b g" id="xSet">إغلاق</button></dialog>
 <dialog id="dCom"><h2>التعليقات</h2><div id="cl"></div><input id="ci" placeholder="اكتب تعليقاً"><button class="b" id="cs">إرسال</button><button class="b g" id="xCom">إغلاق</button></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/nostr-tools@2.10.4/lib/nostr.bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
 <script>
 const NT=window.NostrTools;
-const RELAYS=["wss://relay.damus.io","wss://nos.lol","wss://relay.primal.net"];
+let RELAYS=["wss://relay.damus.io","wss://nos.lol","wss://relay.primal.net"];
+try{const r=JSON.parse(localStorage.getItem("relays")||"null");if(Array.isArray(r)&&r.length)RELAYS=r.filter(u=>/^wss:\/\//.test(u))}catch{}
 const BLOSSOM="https://blossom.primal.net";
 const TAG="kalimat-app";let curTag=null;
 const $=s=>document.querySelector(s);
 const el=(t,p={},...k)=>{const e=document.createElement(t);Object.assign(e,p);k.forEach(x=>e.append(x));return e};
 const now=()=>Math.floor(Date.now()/1000);
 const hex=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join("");
-let sk=null,pk=null,muted=true,follows=new Set(),cLoaded=false,c3="",c3t=0,tab="all";
+let sk=null,pk=null,muted=!(()=>{try{return localStorage.getItem("snd")=="1"}catch{return false}})(),follows=new Set(),cLoaded=false,c3="",c3t=0,tab="all";
 const seen=new Set(),subs={},handlers={},socks=[],profiles={},cnt={};
 
 /* ---------- relays ---------- */
@@ -300,7 +307,8 @@ function openProf(p){
   if(p==pk){
     const n=el("input",{placeholder:"الاسم",value:d.name||""}),a=el("textarea",{rows:2,placeholder:"نبذة عنك",value:d.about||""});
     const pic=el("input",{type:"file",accept:"image/*"}),st=el("div",{id:"st"});
-    b.append(n,a,el("small",{textContent:"صورة الملف (اختياري):"}),pic,
+    pic.hidden=true;pic.onchange=()=>{if(pic.files[0])im.src=URL.createObjectURL(pic.files[0])};im.onclick=()=>pic.click();
+    b.append(el("button",{className:"b g",textContent:"📷 تغيير الصورة من المعرض",onclick:()=>pic.click()}),pic,n,a,
       el("button",{className:"b",textContent:"حفظ الملف الشخصي",onclick:async()=>{
         try{
           st.textContent="…";let u=d.picture;if(pic.files[0])u=await upload(pic.files[0]);
@@ -308,8 +316,9 @@ function openProf(p){
           const ev=await sign({kind:0,created_at:now(),content:JSON.stringify(nd),tags:[]});
           publish(ev);profiles[p]=nd;st.textContent="تم الحفظ";
           document.querySelectorAll(`[data-pk="${p}"] .nm`).forEach(x=>x.textContent="@"+nd.name);
+          if(u)document.querySelectorAll(`[data-pk="${p}"] .av`).forEach(x=>x.src=u);
         }catch{st.textContent="تعذّر الحفظ"}
-      }}),st);
+      }}),st,el("button",{className:"b g",textContent:"⚙ الإعدادات",onclick:()=>{$("#dP").close();openSet()}}));
   }else b.append(
     el("button",{className:"b",textContent:"متابعة",onclick:e=>follow(p,e.target)}),
     el("button",{className:"b g",textContent:"رسالة خاصة",onclick:()=>{$("#dP").close();openDM(p)}}));
@@ -358,6 +367,28 @@ $("#ds").onclick=()=>{
   try{NT.nip17.wrapManyEvents(sk,[{publicKey:dpeer},{publicKey:pk}],t).forEach(publish);$("#di").value=""}catch{}
 };
 
+const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch{}};
+function openSet(){
+  const b=$("#sb");b.replaceChildren();
+  if(pk)b.append(
+    el("button",{className:"b",textContent:"ملفي الشخصي وتعديله",onclick:()=>{$("#dSet").close();openProf(pk)}}),
+    el("button",{className:"b g",textContent:"نسخ معرّفي العام (npub)",onclick:e=>{navigator.clipboard.writeText(NT.nip19.npubEncode(pk));e.target.textContent="تم النسخ ✓"}}));
+  else b.append(el("button",{className:"b",textContent:"تسجيل الدخول",onclick:()=>{$("#dSet").close();renderLogin();$("#dLogin").showModal()}}));
+  const snd=el("input",{type:"checkbox",checked:ls("snd")=="1"});snd.style.cssText="width:auto;margin:0 0 0 8px";
+  snd.onchange=()=>{ls("snd",snd.checked?"1":"0");muted=!snd.checked};
+  b.append(el("label",{},snd,"تشغيل الصوت تلقائياً (قد يمنعه المتصفح)"),el("h3",{textContent:"المرحّلات"}));
+  RELAYS.forEach(u=>b.append(el("div",{className:"cm",textContent:u},el("button",{className:"chip",textContent:"حذف",onclick:()=>{if(RELAYS.length<2)return;RELAYS=RELAYS.filter(x=>x!=u);ls("relays",JSON.stringify(RELAYS));openSet()}}))));
+  const ri=el("input",{placeholder:"wss://…",dir:"ltr"});
+  b.append(ri,el("button",{className:"b g",textContent:"إضافة مرحّل",onclick:()=>{const v=ri.value.trim();if(/^wss:\/\/\S+$/.test(v)&&!RELAYS.includes(v)){RELAYS.push(v);ls("relays",JSON.stringify(RELAYS));openSet()}}}),
+    el("small",{textContent:"تُطبَّق تغييرات المرحّلات بعد إعادة فتح الصفحة."}));
+  if(sk){
+    const o=el("div",{id:"st"});
+    b.append(el("h3",{textContent:"النسخ الاحتياطي"}),el("button",{className:"b g",textContent:"عرض المفتاح الخاص",onclick:()=>{if(confirm("لا تشاركه مع أحد. هل تريد عرضه؟"))o.textContent=NT.nip19.nsecEncode(sk)}}),o);
+  }
+  if(pk)b.append(el("button",{className:"b g",textContent:"تسجيل الخروج",onclick:()=>{logout();$("#dSet").close()}}));
+  b.append(el("p",{textContent:"kalimat · نسخة تجريبية"}));
+  $("#dSet").showModal();
+}
 const need=new Set(),known=new Set();let pt;
 function wantProfile(p){
   if(known.has(p))return;known.add(p);need.add(p);clearTimeout(pt);
@@ -403,7 +434,8 @@ $("#go").onclick=async()=>{
 /* ---------- wiring ---------- */
 $("#nHome").onclick=()=>{if(!$("#tagbar").hidden)clearTag();$("#feed").scrollTo({top:0,behavior:"smooth"})};
 $("#nPost").onclick=()=>{if(ok()){$("#st").textContent="";$("#dPost").showModal()}};
-$("#nMe").onclick=()=>{renderLogin();$("#dLogin").showModal()};
+$("#nMe").onclick=()=>{if(pk)openProf(pk);else{renderLogin();$("#dLogin").showModal()}};
+$("#gear").onclick=()=>openSet();$("#xSet").onclick=()=>$("#dSet").close();
 $("#xLogin").onclick=()=>$("#dLogin").close();
 $("#xPost").onclick=()=>$("#dPost").close();
 
