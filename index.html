@@ -93,6 +93,7 @@ dialog .w{font-size:13px;color:#e8b04a;line-height:1.6;margin:8px 0}
 const NT=window.NostrTools;
 const RELAYS=["wss://relay.damus.io","wss://nos.lol","wss://relay.primal.net"];
 const BLOSSOM="https://blossom.primal.net";
+const TAG="kalimat-app";let curTag=null;
 const $=s=>document.querySelector(s);
 const el=(t,p={},...k)=>{const e=document.createElement(t);Object.assign(e,p);k.forEach(x=>e.append(x));return e};
 const now=()=>Math.floor(Date.now()/1000);
@@ -188,6 +189,8 @@ function media(ev){
 }
 function addCard(ev){
   if(seen.has(ev.id))return;
+  if(!ev.tags.some(t=>t[0]=="t"&&t[1]==TAG))return;
+  if(curTag&&!ev.tags.some(t=>t[0]=="t"&&t[1]==curTag))return;
   if(ev.kind==1&&(ev.tags.some(t=>t[0]=="e")||!ev.content.trim()))return;
   const [u,ty]=media(ev);
   if(u&&!/^https:/.test(u))return;
@@ -203,7 +206,7 @@ function addCard(ev){
   const like=el("button",{className:"ib",ariaLabel:"إعجاب"},"♥",el("small",{className:"lc",textContent:"0"}));
   like.onclick=()=>{
     if(!ok())return;
-    sign({kind:7,created_at:now(),content:"+",tags:[["e",ev.id],["p",ev.pubkey]]}).then(r=>{publish(r);bump(ev.id,"l",r.id)}).catch(()=>{});
+    sign({kind:7,created_at:now(),content:"+",tags:[["e",ev.id],["p",ev.pubkey],["t",TAG]]}).then(r=>{publish(r);bump(ev.id,"l",r.id)}).catch(()=>{});
     like.classList.add("on");
   };
   const com=el("button",{className:"ib",ariaLabel:"تعليقات",onclick:()=>openCom(ev)},"✎",el("small",{className:"cc",textContent:"0"}));
@@ -239,10 +242,10 @@ function applyTab(){
 function openCom(ev){
   const L=$("#cl");L.replaceChildren();$("#dCom").showModal();
   const got=new Set(),add=t=>L.append(el("p",{className:"cm",textContent:t}));
-  sub("cm",[{kinds:[1],"#e":[ev.id],limit:50}],e=>{if(!got.has(e.id)){got.add(e.id);add(e.content)}});
+  sub("cm",[{kinds:[1],"#e":[ev.id],"#t":[TAG],limit:50}],e=>{if(!got.has(e.id)){got.add(e.id);add(e.content)}});
   $("#cs").onclick=async()=>{
     if(!ok())return;const c=$("#ci").value.trim();if(!c)return;
-    try{const r=await sign({kind:1,created_at:now(),content:c,tags:[["e",ev.id,"","root"],["p",ev.pubkey]]});publish(r);got.add(r.id);bump(ev.id,"c",r.id);add(c);$("#ci").value=""}catch{}
+    try{const r=await sign({kind:1,created_at:now(),content:c,tags:[["e",ev.id,"","root"],["p",ev.pubkey],["t",TAG]]});publish(r);got.add(r.id);bump(ev.id,"c",r.id);add(c);$("#ci").value=""}catch{}
   };
 }
 
@@ -259,7 +262,7 @@ function wantCounts(){
   clearTimeout(ct);
   ct=setTimeout(()=>{
     const ids=[...document.querySelectorAll(".card")].map(c=>c.dataset.id).slice(0,150);
-    sub("cnt",[{kinds:[7,1],"#e":ids,limit:500}],e=>{
+    sub("cnt",[{kinds:[7,1],"#e":ids,"#t":[TAG],limit:500}],e=>{
       const t=e.tags.find(x=>x[0]=="e");if(!t)return;
       if(e.kind==7){if(e.content!="-")bump(t[1],"l",e.id)}else bump(t[1],"c",e.id);
     });
@@ -278,15 +281,15 @@ function resetFeed(msg){
   $("#feed").append(el("div",{id:"empty",textContent:msg}));
 }
 function showTag(t){
-  resetFeed("جارٍ البحث عن #"+t+"…");
+  curTag=t;resetFeed("جارٍ البحث عن #"+t+"…");
   const b=$("#tagbar");b.hidden=false;
   b.replaceChildren(el("button",{className:"chip",textContent:"#"+t+"  ✕",onclick:clearTag}));
-  sub("feed",[{kinds:[1,20,21,22],"#t":[t],limit:80}],addCard);
+  sub("feed",[{kinds:[1,20,21,22],"#t":[TAG],limit:300}],addCard);
   $("#dS").close();$("#dP").close();
 }
 function clearTag(){
-  resetFeed("kalimat — جارٍ جلب المنشورات…");$("#tagbar").hidden=true;
-  sub("feed",[{kinds:[1,20,21,22],limit:80}],addCard);
+  curTag=null;resetFeed("kalimat — جارٍ جلب المنشورات…");$("#tagbar").hidden=true;
+  sub("feed",[{kinds:[1,20,21,22],"#t":[TAG],limit:100}],addCard);
 }
 function openProf(p){
   const b=$("#pb");b.replaceChildren();const d=profiles[p]||{};
@@ -311,7 +314,7 @@ function openProf(p){
     el("button",{className:"b",textContent:"متابعة",onclick:e=>follow(p,e.target)}),
     el("button",{className:"b g",textContent:"رسالة خاصة",onclick:()=>{$("#dP").close();openDM(p)}}));
   const g=el("div",{className:"gr"});b.append(g);
-  sub("pp",[{kinds:[1,20,21,22],authors:[p],limit:30}],e=>{
+  sub("pp",[{kinds:[1,20,21,22],authors:[p],"#t":[TAG],limit:30}],e=>{
     if(e.kind==1&&e.tags.some(t=>t[0]=="e"))return;
     const [u,ty]=media(e);
     g.append(u&&ty=="i"&&/^https:/.test(u)?el("img",{src:u,loading:"lazy",alt:""}):el("div",{textContent:u?"▶":e.content.slice(0,40)}));
@@ -389,7 +392,7 @@ $("#go").onclick=async()=>{
     if(f){st.textContent="جارٍ الرفع…";u=await upload(f)}
     if(!u&&!c){st.textContent="اكتب نصاً أو أرفق صورة أو فيديو";return}
     if(u&&!/^https:\/\//.test(u)){st.textContent="الرابط يجب أن يبدأ بـ https";return}
-    const tags=(c.match(/#[\p{L}\p{N}_]+/gu)||[]).map(x=>["t",x.slice(1).toLowerCase()]);
+    const tags=[["t",TAG],["client","kalimat"],...(c.match(/#[\p{L}\p{N}_]+/gu)||[]).map(x=>["t",x.slice(1).toLowerCase()])];
     let t={kind:1,created_at:now(),content:c,tags};
     if(u){const m=f?(f.type||"video/mp4"):mime(u);t={kind:/^image/.test(m)?20:22,created_at:now(),content:c,tags:[["title",c.slice(0,60)],["imeta","url "+u,"m "+m],["alt",c||"media"],...tags]}}
     const ev=await sign(t);publish(ev);addCard(ev);
@@ -419,7 +422,7 @@ $("#sg").onclick=()=>{
   showTag(v.replace(/^#/,"").toLowerCase());
 };
 RELAYS.forEach(open1);
-sub("feed",[{kinds:[1,20,21,22],limit:80}],addCard);
+sub("feed",[{kinds:[1,20,21,22],"#t":[TAG],limit:100}],addCard);
 try{const s=localStorage.getItem("nsec");if(s){const d=NT.nip19.decode(s);if(d.type=="nsec")setKey(d.data)}}catch{}
 ui();
 </script>
